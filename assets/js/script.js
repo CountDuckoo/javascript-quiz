@@ -3,25 +3,44 @@ var gameBtn = document.querySelector("#startBtn");
 var answers = document.querySelector("#answers");
 var timeEl = document.querySelector("#timer");
 var correctMessage = document.querySelector("#rightWrong");
+var initialForm = document.querySelector("#initials");
+var initialInput = document.querySelector("#initial-text");
+var highScoresEl = document.querySelector("#highScoresList");
 var timeLeft = 0;
+var startingTime = 60;
 var questionList=[];
 var randomQuestionList=[];
 var gameRunning=false;
 var correctAnswerList=[];
 var question=0;
+var highScoresList=[];
+var timerInterval;
+var scoresVisible=false;
 
 questionList.push(['Question1', 'a', 'b', 'c', 'd']);
 questionList.push(['Question2', 'e', 'f', 'g', 'h']);
 questionList.push(['Question3', 'i', 'j', 'k', 'l']);
 questionList.push(['Question4', 'm', 'n', 'o', 'p']);
-questionList.push(['Question4', 'q', 'r', 's', 't']);
-questionList.push(['Question4', 'u', 'v', 'w', 'x']);
+questionList.push(['Question5', 'q', 'r', 's', 't']);
+questionList.push(['Question6', 'u', 'v', 'w', 'x']);
 
 gameBtn.addEventListener("click", startGame);
-gameBtn.style.display="block";
+gameBtn.style.display="inherit";
+initialForm.style.display="none";
+
+function init(){
+    highScoresList = (JSON.parse(localStorage.getItem("scores")) || []);
+}
+
+function storeHighScores() {
+    localStorage.setItem("scores", JSON.stringify(highScoresList));
+}
 
 function startGame(){
+    hideHighScores();
+    correctMessage.textContent="";
     gameBtn.style.display = "none";
+    initialForm.style.display="none";
     gameRunning=true;
     startTimer();
     shuffleQuestionsAnswers();
@@ -30,13 +49,12 @@ function startGame(){
 }
 
 function startTimer(){
-    timeLeft = 60;
-    var timerInterval = setInterval(function(){
+    timeLeft = startingTime;
+    timerInterval = setInterval(function(){
         if(!gameRunning){
             return;
         }
         timeLeft--;
-        console.log(timeLeft);
         displayTime();
     }, 1000)
 }
@@ -44,6 +62,7 @@ function startTimer(){
 function shuffleQuestionsAnswers(){
     var questionsUnused=[];
     randomQuestionList=[];
+    correctAnswerList=[];
     for (var i=0; i<questionList.length; i++){
         //adds all the indices of questions to the unused questions list
         questionsUnused.push(i);
@@ -69,7 +88,6 @@ function shuffleQuestionsAnswers(){
             }
         }
     }
-    console.log(randomQuestionList);
 }
 
 function displayTime(){
@@ -136,13 +154,81 @@ function checkAnswer(index){
 function endGame(gameWon){
     gameRunning=false;
     answers.innerHTML='';
+    clearInterval(timerInterval);
     if(gameWon){
-
+        correctMessage.textContent="You won! Input your initials:";
+        initialForm.style.display="inherit";
     } else {
-        
+        correctMessage.textContent="You lost!";
     }
+    gameBtn.style.display = "inherit";
+    gameBtn.textContent="Play Again?";
 }
 
+initialForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    var initialText = initialInput.value.trim();
+    // if it is empty, doesn't add it
+    if (initialText === "") {
+      return;
+    }
+    if(initialText.length!=3){
+        alert("Exactly three letters!");
+        return;
+    }
+    initialText=initialText.toUpperCase();
+    sortHighScores(timeLeft, initialText);
+    correctMessage.textContent="Your time of " + timeLeft + " seconds is now saved, " + initialText +"!";
+    displayHighScores();
+    initialForm.style.display="none";
+});
+
+function sortHighScores(timeScore, initials){
+    if (highScoresList.length==0){
+        highScoresList.push([timeScore, initials]);
+    } else {
+        var minTime = 0;
+        var i=0;
+        for (i=0; i<highScoresList.length; i++){
+            if(timeScore<highScoresList[i][0]){
+                highScoresList.splice(i, 0, [timeScore, initials]);
+                break;
+            }
+        }
+        //if didn't find one before the end, add it to the end
+        if(i==highScoresList.length){
+            highScoresList.push([timeScore, initials]);
+        }
+    }
+    storeHighScores();
+}
+
+highScoresBtn.addEventListener("click", function() {
+    if (!scoresVisible && !gameRunning){
+        displayHighScores();
+        return;
+    }
+    hideHighScores();
+});
+
+function displayHighScores(){
+    scoresVisible=true;
+    highScoresEl.innerHTML='';
+    highScoresList.forEach(element => {
+        var li=document.createElement("li");
+        li.textContent = element[1] + "    " + element[0] + " seconds";
+        highScoresEl.appendChild(li);
+    });
+    highScoresBtn.textContent="Hide high scores";
+}
+
+function hideHighScores(){
+    scoresVisible=false;
+    highScoresEl.innerHTML='';
+    highScoresBtn.textContent="View high scores";
+}
+
+init();
 //need an eventlistener on the button that starts the timer and starts the game loop
 //timer needs a variable that is a setInterval: a function() and 1000 for seconds
 //the function needs to decrement the time and call a function

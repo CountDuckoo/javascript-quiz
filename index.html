@@ -9,12 +9,18 @@
   </head>
   <body>
     <header>
-      <button id="highScoresBtn">View high scores</button>
+      <div id="highScoresSection">
+        <button id="highScoresBtn">View high scores</button>
+        <ol id="highScoresList"></ol>
+      </div>
       <h2 id="timer"></h2>
     </header>
-    <button id="startBtn">Start Quiz</button>
     <ul id="answers"></ul>
     <p id="rightWrong"></p>
+    <form id="initials" method="POST">
+      <input type="text" placeholder="Three letters" name="initial-text" id="initial-text" />
+    </form>
+    <button id="startBtn">Start Quiz</button>
     <script src="./assets/js/script.js"></script>
   </body>
 </html>
