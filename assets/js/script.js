@@ -17,12 +17,13 @@ var highScoresList=[];
 var timerInterval;
 var scoresVisible=false;
 
-questionList.push(['Question1', 'a', 'b', 'c', 'd']);
-questionList.push(['Question2', 'e', 'f', 'g', 'h']);
-questionList.push(['Question3', 'i', 'j', 'k', 'l']);
-questionList.push(['Question4', 'm', 'n', 'o', 'p']);
-questionList.push(['Question5', 'q', 'r', 's', 't']);
-questionList.push(['Question6', 'u', 'v', 'w', 'x']);
+//first answer is the correct one
+questionList.push(['Primitive data types do not include:', 'Array', 'String', 'Number', 'Boolean']);
+questionList.push(['When initializing an array with elements, what are they encased in?', 'Square Brackets', 'Quotes', 'Curly Brackets', 'Parentheses']);
+questionList.push(['This type of loop includes an initial expression and an expression run at the end of each loop:', 'For Loop', 'Foreach Loop', 'While Loop', 'Do While Loop']);
+questionList.push(['This type of variable can be stored in Local Storage as-is:', 'String', 'Array', 'Object', 'Date']);
+questionList.push(['Every HTML element can have this many parent elements', '1 parent', '2 parents', '3 parents', 'As many parents as you want']);
+questionList.push(['A local variable can be modified by this scope:', 'The current function and its children', 'The current function and its parents', 'The current function and its parents and children', 'Only the current function']);
 
 gameBtn.addEventListener("click", startGame);
 gameBtn.style.display="inherit";
@@ -109,6 +110,7 @@ function displayQuestion(){
     var questionText=document.createElement("h2");
     questionText.textContent = currentQuestion[0];
     var questionEl=document.createElement("li");
+    questionEl.style.listStyleType = 'none';
     questionEl.appendChild(questionText);
     answers.appendChild(questionEl);
     for (var i=1; i<currentQuestion.length; i++){
@@ -187,10 +189,10 @@ function sortHighScores(timeScore, initials){
     if (highScoresList.length==0){
         highScoresList.push([timeScore, initials]);
     } else {
-        var minTime = 0;
         var i=0;
         for (i=0; i<highScoresList.length; i++){
-            if(timeScore<highScoresList[i][0]){
+            //if it has more remaining time, add it before that element
+            if(timeScore>highScoresList[i][0]){
                 highScoresList.splice(i, 0, [timeScore, initials]);
                 break;
             }
@@ -216,7 +218,7 @@ function displayHighScores(){
     highScoresEl.innerHTML='';
     highScoresList.forEach(element => {
         var li=document.createElement("li");
-        li.textContent = element[1] + "    " + element[0] + " seconds";
+        li.textContent = element[1] + ' ' +String.fromCharCode(0x00A0) + ' ' + element[0] + " seconds";
         highScoresEl.appendChild(li);
     });
     highScoresBtn.textContent="Hide high scores";
